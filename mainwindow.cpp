@@ -21,17 +21,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 初始化界面状态
     ui -> lbl_Status -> setText("未连接");
-    ui -> lbl_Status ->setStyleSheet("color:red;");
+    ui -> lbl_Status -> setStyleSheet("color:red;");
 
     ui->lbl_Cam1->setStyleSheet("QLabel { background-color: black; }");
     ui->lbl_Cam2->setStyleSheet("QLabel { background-color: black; }");
+    ui->lbl_Cam3->setStyleSheet("QLabel { background-color: black; }");
+    ui->lbl_Cam4->setStyleSheet("QLabel { background-color: black; }");
 
     // 初始化相机
     int cameraCount = 4;
 
     for(int i = 0; i < cameraCount; i++){
         cv::VideoCapture cap;
-// --- 跨平台兼容写法 ---
+// 跨平台兼容写法
 #ifdef Q_OS_WIN
         // Windows 下使用 DirectShow
         int backend = cv::CAP_DSHOW;
@@ -44,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent)
             // 设置分辨率
             cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
             cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+            // 测试是否为USB带宽导致显示问题
+            // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+            // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
             // 设置为 MJPG (压缩格式) 可以大幅降低带宽压力，防止“有声音无画面”或帧率极低。
             cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
             // 打印最终实际获取到的分辨率 (用于验证)
@@ -150,13 +155,10 @@ void MainWindow::onSocketError(QAbstractSocket::SocketError socketError)
 void MainWindow::updateFrames()
 {
     // 将 UI 上的标签放入数组，方便循环操作
-    // 如果以后有4个，就往这里加 ui->lbl_Cam3, ui->lbl_Cam4
-    QLabel* displayLabels[] = {ui->lbl_Cam1, ui->lbl_Cam2};
+    QLabel* displayLabels[] = {ui->lbl_Cam1, ui->lbl_Cam2, ui->lbl_Cam3, ui->lbl_Cam4};
 
     // 遍历所有已管理的相机
     for(size_t i = 0; i < m_cams.size(); i++) {
-        // 防止索引超出 UI 标签的数量（比如开了4个相机但界面只有2个框）
-        if(i >= 2) break;
 
         if(m_cams[i].isOpened()) {
             cv::Mat frame;
