@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QTcpSocket>
-#include <QMessageBox>      // 用于展示信息框
-#include <QDateTime>        // 用于生成唯一的文件名
+#include <QMessageBox>       // 用于展示信息框
+#include <QDateTime>         // 用于生成唯一的文件名
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -20,8 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_socket, &QTcpSocket::errorOccurred, this, &MainWindow::onSocketError);
 
     // 初始化界面状态
-    ui -> lbl_Status -> setText("未连接");
-    ui -> lbl_Status -> setStyleSheet("color:red;");
+    ui->lbl_Status->setText("未连接");
+    ui->lbl_Status->setStyleSheet("color:red;");
 
     ui->lbl_Cam1->setStyleSheet("QLabel { background-color: black; }");
     ui->lbl_Cam2->setStyleSheet("QLabel { background-color: black; }");
@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     for(int i = 0; i < cameraCount; i++){
         cv::VideoCapture cap;
-// 跨平台兼容写法
+        // 跨平台兼容写法
 #ifdef Q_OS_WIN
         // Windows 下使用 DirectShow
         int backend = cv::CAP_DSHOW;
@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
             // 测试是否为USB带宽导致显示问题
             // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
             // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-            // 设置为 MJPG (压缩格式) 可以大幅降低带宽压力，防止“有声音无画面”或帧率极低。
+            // 设置为 MJPG (压缩格式) 可以大幅降低带宽压力，防止"有声音无画面"或帧率极低
             cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
             // 打印最终实际获取到的分辨率 (用于验证)
             double actualW = cap.get(cv::CAP_PROP_FRAME_WIDTH);
@@ -84,20 +84,20 @@ MainWindow::~MainWindow()
 // 点击按钮槽函数
 void MainWindow::on_btn_Connect_clicked()
 {
-    // 如果当前已经是连接状态，点击按钮意味着“断开连接”
-    if(m_socket -> state() == QAbstractSocket::ConnectedState){
-        ui -> btn_Connect -> setEnabled(false); // 防止重复点击
+    // 如果当前已经是连接状态，点击按钮意味着"断开连接"
+    if(m_socket->state() == QAbstractSocket::ConnectedState){
+        ui->btn_Connect->setEnabled(false); // 防止重复点击
 
-        // m_socket -> disconnectFromHost();    // 礼貌分手，等待服务器方确认才会进入UnconnectedState。现在是ClosingState
+        // m_socket->disconnectFromHost();    // 礼貌分手，等待服务器方确认才会进入UnconnectedState。现在是ClosingState
 
         // abort(): 拔网线，立即关闭连接，重置 Socket（快，立即进入 UnconnectedState）
-        // abort()断开后，程序会立即执行onSocketDisconnected（），所以要先改变UI文本，在执行断开操作
-        ui -> lbl_Status -> setText("正在断开...");
+        // abort()断开后，程序会立即执行onSocketDisconnected()，所以要先改变UI文本，在执行断开操作
+        ui->lbl_Status->setText("正在断开...");
         m_socket->abort();
         return;
     }
 
-    QString ip = ui -> le_IPAdress -> text();
+    QString ip = ui->le_IPAdress->text();
     quint16 port = 30003;
 
     // 输入校验
@@ -106,31 +106,31 @@ void MainWindow::on_btn_Connect_clicked()
         return;
     }
 
-    ui -> lbl_Status -> setText("正在连接...");
-    ui -> btn_Connect -> setEnabled(false);     // 连接过程中禁用按钮，防止狂点
+    ui->lbl_Status->setText("正在连接...");
+    ui->btn_Connect->setEnabled(false);     // 连接过程中禁用按钮，防止狂点
 
     // 发起连接
-    m_socket -> connectToHost(ip, port);
+    m_socket->connectToHost(ip, port);
 }
 
 // 连接成功槽函数
 void MainWindow::onSocketConnected()
 {
-    ui -> lbl_Status -> setText("连接成功");
-    ui -> lbl_Status -> setStyleSheet("color: green; font-weight: bold;");
+    ui->lbl_Status->setText("连接成功");
+    ui->lbl_Status->setStyleSheet("color: green; font-weight: bold;");
 
-    ui -> btn_Connect -> setText("断开连接");
-    ui -> btn_Connect -> setEnabled(true);      // 按钮可以按下
+    ui->btn_Connect->setText("断开连接");
+    ui->btn_Connect->setEnabled(true);      // 按钮可以按下
 }
 
 // 断开连接槽函数
 void MainWindow::onSocketDisconnected()
 {
-    ui -> lbl_Status -> setText("已断开");
-    ui -> lbl_Status -> setStyleSheet("color: red;");
+    ui->lbl_Status->setText("已断开");
+    ui->lbl_Status->setStyleSheet("color: red;");
 
-    ui -> btn_Connect -> setText("连接");
-    ui -> btn_Connect -> setEnabled(true);
+    ui->btn_Connect->setText("连接");
+    ui->btn_Connect->setEnabled(true);
 }
 
 // 连接错误槽函数
@@ -176,7 +176,7 @@ void MainWindow::updateFrames()
     }
 }
 
-// --- 辅助函数：Mat (OpenCV) -> QImage (Qt) ---
+// 辅助函数：Mat (OpenCV) -> QImage (Qt)
 QImage MainWindow::matToQImage(const cv::Mat &mat)
 {
     // 1. 颜色转换 BGR -> RGB
@@ -186,12 +186,12 @@ QImage MainWindow::matToQImage(const cv::Mat &mat)
     // 2. 构造 QImage
     QImage img((const uchar*)rgb.data, rgb.cols, rgb.rows, rgb.step, QImage::Format_RGB888);
 
-    // 3. 【重要】深拷贝
+    // 3. 重要：深拷贝
     // 必须 copy()，因为 rgb 是局部变量，函数结束后内存会被释放
     return img.copy();
 }
 
-// --- 截图保存按钮 ---
+// 截图保存按钮
 void MainWindow::on_btn_Capture_clicked()
 {
     // 使用当前时间生成文件名，精确到秒
