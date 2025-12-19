@@ -33,16 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     for(int i = 0; i < cameraCount; i++){
         cv::VideoCapture cap;
-        // 跨平台兼容写法
-#ifdef Q_OS_WIN
-        // Windows 下使用 DirectShow
-        int backend = cv::CAP_DSHOW;
-#else
-        // Linux (Jetson) 下使用 V4L2
-        int backend = cv::CAP_V4L2;
-#endif
 
-        if(cap.open(i, backend)){
+        if(cap.open(i, cv::CAP_DSHOW)){
             // 设置分辨率
             cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
             cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
