@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1129</width>
+    <height>645</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,8 +26,8 @@
    <widget class="QLineEdit" name="le_IPAdress">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>450</y>
+      <x>820</x>
+      <y>30</y>
       <width>113</width>
       <height>22</height>
      </rect>
@@ -39,8 +39,8 @@
    <widget class="QPushButton" name="btn_Connect">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>490</y>
+      <x>840</x>
+      <y>60</y>
       <width>91</width>
       <height>41</height>
      </rect>
@@ -52,8 +52,8 @@
    <widget class="QLabel" name="lbl_Status">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>450</y>
+      <x>940</x>
+      <y>30</y>
       <width>61</width>
       <height>21</height>
      </rect>
@@ -184,13 +184,107 @@
      </item>
     </layout>
    </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>790</x>
+      <y>150</y>
+      <width>271</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+    </property>
+    <property name="title">
+     <string>Robot_Control</string>
+    </property>
+    <widget class="QPushButton" name="btn_X_Plus">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>30</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>X+</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_X_Minus">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>30</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>X-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_Y_Minus">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>70</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Y-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_Y_Plus">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>70</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Y+</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_Z_Minus">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>110</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Z-</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_Z_Plus">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>110</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Z+</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1129</width>
      <height>19</height>
     </rect>
    </property>

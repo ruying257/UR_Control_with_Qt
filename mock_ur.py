@@ -21,6 +21,9 @@ while True:
             data = conn.recv(1024)
             if not data:
                 break
+            # 显示接收到的URScript命令
+            command = data.decode('utf-8').strip()
+            print(f"📝 收到命令: {command}")
         print("❌ Qt程序已断开")
         conn.close()
     except Exception as e:

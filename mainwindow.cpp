@@ -14,10 +14,23 @@ MainWindow::MainWindow(QWidget *parent)
     // 初始化Socket
     m_socket = new QTcpSocket(this);
 
-    // 信号与槽连接
+    // TCP通信信号与槽连接
     connect(m_socket, &QTcpSocket::connected, this, &MainWindow::onSocketConnected);
     connect(m_socket, &QTcpSocket::disconnected, this, &MainWindow::onSocketDisconnected);
     connect(m_socket, &QTcpSocket::errorOccurred, this, &MainWindow::onSocketError);
+    // 机械臂控制信号与槽连接
+    connect(ui->btn_X_Plus, &QPushButton::pressed, this, [=](){ onJogBtnPressed(0, 1); });
+    connect(ui->btn_X_Plus, &QPushButton::released, this, &MainWindow::onJogBtnReleased);
+    connect(ui->btn_X_Minus, &QPushButton::pressed, this, [=](){ onJogBtnPressed(0, -1); });
+    connect(ui->btn_X_Minus, &QPushButton::released, this, &MainWindow::onJogBtnReleased);
+    connect(ui->btn_Y_Plus, &QPushButton::pressed, this, [=](){ onJogBtnPressed(1, 1); });
+    connect(ui->btn_Y_Plus, &QPushButton::released, this, &MainWindow::onJogBtnReleased);
+    connect(ui->btn_Y_Minus, &QPushButton::pressed, this, [=](){ onJogBtnPressed(1, -1); });
+    connect(ui->btn_Y_Minus, &QPushButton::released, this, &MainWindow::onJogBtnReleased);
+    connect(ui->btn_Z_Plus, &QPushButton::pressed, this, [=](){ onJogBtnPressed(2, 1); });
+    connect(ui->btn_Z_Plus, &QPushButton::released, this, &MainWindow::onJogBtnReleased);
+    connect(ui->btn_Z_Minus, &QPushButton::pressed, this, [=](){ onJogBtnPressed(2, -1); });
+    connect(ui->btn_Z_Minus, &QPushButton::released, this, &MainWindow::onJogBtnReleased);
 
     // 初始化界面状态
     ui->lbl_Status->setText("未连接");
@@ -211,3 +224,52 @@ void MainWindow::on_btn_Capture_clicked()
         QMessageBox::warning(this, "警告", "当前没有图像数据，无法保存！");
     }
 }
+
+// 机械臂控制
+// 1. 指令发送函数
+void MainWindow::sendURScript(QString cmd)
+{
+    if(m_socket->state() != QAbstractSocket::ConnectedState) {
+        qDebug() << "⚠️ 未连接机械臂，指令发送失败";
+        return;
+    }
+
+    // URScript 必须以换行符 '\n' 结尾，否则机器不执行
+    cmd.append("\n");
+
+    m_socket->write(cmd.toUtf8());
+    m_socket->flush();  // 确保立即发送缓冲区数据
+}
+
+// 2. 实现按下按钮（开始移动）
+// axis: 0=X, 1=Y, 2=Z
+// direction: 1 or -1
+void MainWindow::onJogBtnPressed(int axis, int direction)
+{
+    // 构建速度向量 [Vx, Vy, Vz, Rx, Ry, Rz]
+    double speeds[6] = {0, 0, 0, 0, 0, 0};
+    speeds[axis] = direction * MOVE_VEL;
+
+    // 拼接 URScript 字符串: speedl([x,y,z,rx,ry,rz], a, t)
+    // t 设置为 100秒，意味着“一直动下去”，直到发 stopl
+    QString script = QString("speedl([%1, %2, %3, 0, 0, 0], %4, 100)")
+                         .arg(speeds[0]).arg(speeds[1]).arg(speeds[2])
+                         .arg(MOVE_ACC);
+
+    qDebug() << "📤 发送指令:" << script;
+    sendURScript(script);
+}
+
+// 3. 实现松开按钮（立即停止）
+void MainWindow::onJogBtnReleased()
+{
+    // stopl(a): 线性停止
+    QString script = QString("stopl(%1)").arg(MOVE_ACC);
+
+    qDebug() << "🛑 发送停止";
+    sendURScript(script);
+}
+
+
+
+
