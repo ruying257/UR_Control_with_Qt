@@ -237,8 +237,18 @@ void MainWindow::sendURScript(QString cmd)
     // URScript 必须以换行符 '\n' 结尾，否则机器不执行
     cmd.append("\n");
 
-    m_socket->write(cmd.toUtf8());
-    m_socket->flush();  // 确保立即发送缓冲区数据
+    QByteArray data = cmd.toUtf8();
+    qint64 bytesWritten = m_socket->write(data);
+
+    if(bytesWritten == -1) {
+        qDebug() << "⚠️ 写入失败";
+        return;
+    } else if(bytesWritten != data.size()) {
+        qDebug() << "⚠️ 写入部分数据，实际写入" << bytesWritten << "字节";
+        return;
+    } else {
+        m_socket->flush();  // 确保立即发送缓冲区数据
+    }
 }
 
 // 2. 实现按下按钮（开始移动）
