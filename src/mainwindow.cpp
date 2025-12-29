@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "platform/CameraHelper.h"
 #include <QTcpSocket>
 #include <QMessageBox>       // 用于展示信息框
 #include <QDateTime>         // 用于生成唯一的文件名
@@ -45,28 +46,18 @@ MainWindow::MainWindow(QWidget *parent)
     int cameraCount = 4;
 
     for(int i = 0; i < cameraCount; i++){
-        cv::VideoCapture cap;
-
-        if(cap.open(i, cv::CAP_DSHOW)){
-            // 设置分辨率
-            cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
-            cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
-            // 测试是否为USB带宽导致显示问题
-            // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-            // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-            // 设置为 MJPG (压缩格式) 可以大幅降低带宽压力，防止"有声音无画面"或帧率极低
-            cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+        cv::VideoCapture cap = createCamera(i);
+        if(cap.isOpened()){
             // 打印最终实际获取到的分辨率 (用于验证)
             double actualW = cap.get(cv::CAP_PROP_FRAME_WIDTH);
             double actualH = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
             qDebug() << "✅ 相机" << i << "初始化成功 | 分辨率:" << actualW << "x" << actualH;
+
             m_cams.push_back(cap);
         } else {
-            qDebug() << "错误：无法打开相机索引" << i;
             m_cams.push_back(cv::VideoCapture());     // 即使打不开，也要压入一个空对象占位，防止后面数组越界
-        }
+        } 
 
-        // 初始化缓存容器
         m_currentFrames.push_back(cv::Mat());
     }
 
