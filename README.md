@@ -1,122 +1,132 @@
-# 🤖 UR10e Remote Control & Vision System
+# 🤖 UR12e Remote Control & Intelligent Planning System
 
 ## 📖 项目简介 (Introduction)
 
-本项目是一个基于 Qt (C++) 和 OpenCV 开发的机械臂远程控制与视觉监控软件。
+本项目是一个高扩展性的工业机械臂控制与视觉规划系统，基于 **Qt 6 (C++)** 和 **OpenCV 4** 开发。
 
-主要功能是实现对 Universal Robots UR12e 机械臂的远程连接控制，同时集成 多路 USB 相机 实时画面监控与图像采集功能。
+项目旨在实现 Universal Robots (UR) 系列机械臂的远程实时控制，集成多路视觉监控，并内嵌 **RRT (Rapidly-exploring Random Tree)** 路径规划算法。
 
-项目采用 **CMake** 构建，设计为跨平台架构，支持在 **Windows (开发环境)** 和 **NVIDIA Jetson Orin (部署环境/Ubuntu)** 上运行。
+采用 **模块化架构** 设计，利用 CMake 实现 Windows/Linux (Jetson Orin) 跨平台编译，并实现了 **核心算法与 UI 的解耦**。
 
-## ✨ 功能特性 (Features)
+## ✨ 核心特性 (Key Features)
 
-- **机械臂通讯**: 基于 TCP/IP 协议连接 UR 机械臂 (Port 30003 Realtime)，支持断线检测与重连。
-- **多路视觉监控**: 支持同时读取 2 路（可扩展至 4 路）USB 相机画面。
-- **高清采集**: 支持 1080P/720P 高清分辨率设置，自动使用 MJPG 格式优化 USB 带宽。
-- **自适应 UI**: 画面显示采用 16:9 比例自适应布局，支持窗口任意缩放。
-- **图像保存**: 一键截图并保存原始分辨率图像至本地。
-- **跨平台**: 代码兼容 Windows (DirectShow) 和 Linux (V4L2) 驱动后端。
+### 🎮 运动控制 (Motion Control)
 
-## 🛠️ 依赖环境 (Prerequisites)
+* **实时点动**: 支持笛卡尔空间 (X/Y/Z) 的实时 Jog 控制，基于 `speedl` 速度接口。
+* **安全机制**: 实现“按住即动，松开即停”的安全逻辑 (`stopl`)。
+* **网络鲁棒性**: 针对 Windows 非实时环境优化 TCP 通信，强制直连 (NoProxy) 以规避系统代理干扰。
 
-### 硬件
+### 🧠 智能规划 (Path Planning)
 
-- **机械臂**: Universal Robots UR12e (或使用 Python Mock Server 模拟)
-- **计算平台**: Windows PC 或 NVIDIA Jetson Orin
-- **相机**: USB 2.0/3.0 工业相机或普通 Webcam
+* **RRT 算法引擎**: 内置手写的 RRT 避障路径规划器 (`RRTPlanner`)。
+* **碰撞检测**: 基于球体模型的 3D 空间碰撞检测算法。
+* **轨迹优化**: 包含路径剪枝 (Pruning) 与平滑处理 (Smoothing) 逻辑。
+* **独立测试**: 提供独立的算法单元测试 Target (`RRT_Test`)，方便算法调试。
 
-### 软件栈
+### 👁️ 视觉系统 (Vision System)
 
-| **组件**         | **Windows (Dev)** | **Linux (Jetson Deploy)** |
-| ---------------- | ----------------- | ------------------------- |
-| **OS**           | Windows 10/11     | Ubuntu 20.04 / 22.04      |
-| **Compiler**     | MSVC 2019/2022    | GCC / G++                 |
-| **Qt Version**   | Qt 6.x            | Qt 5.12+ / 5.15           |
-| **OpenCV**       | 4.x (MSVC build)  | 4.x (apt install)         |
-| **Build System** | CMake 3.16+       | CMake 3.10+               |
+* **多相机并发**: 支持 2-4 路 USB 相机同时采集与显示。
+* **跨平台驱动**:
+* **Windows**: 自动使用 DirectShow 后端。
+* **Linux**: 自动使用 V4L2 后端，并优化 MJPG 格式以降低 USB 带宽压力。
 
-## 🚀 构建与运行 (Build & Run)
 
-### Windows 环境 (Qt Creator)
+* **数据采集**: 支持原始分辨率截图保存，用于数据集制作。
 
-1. 安装 Qt 6 (勾选 MSVC 编译器) 和 OpenCV。
-2. 在 `CMakeLists.txt` 中修改 `OpenCV_DIR` 路径指向你的 OpenCV build 目录。
-3. 使用 Qt Creator 打开 `CMakeLists.txt`。
-4. 配置构建套件 (Kit) 为 **Desktop Qt 6.x.x MSVC2019/2022 64bit**。
-5. 点击 **构建 (Build)** 和 **运行 (Run)**。
+## 🛠️ 技术栈 (Tech Stack)
 
-### Linux 环境 (Jetson Orin / Ubuntu)
-
-1. **安装依赖**:
-
-   Bash
-
-   ```
-   sudo apt update
-   sudo apt install build-essential cmake
-   sudo apt install qtbase5-dev qt5-qmake      # 安装 Qt5
-   sudo apt install libopencv-dev              # 安装 OpenCV
-   ```
-
-2. **编译项目**:
-
-   Bash
-
-   ```
-   mkdir build && cd build
-   cmake ..
-   make -j4  # 使用 4 线程编译
-   ```
-
-3. **运行程序**:
-
-   Bash
-
-   ```
-   ./UR_Control
-   ```
+| 模块 | 技术选型 | 说明 |
+| --- | --- | --- |
+| **GUI Framework** | Qt 6.x / 5.15 | 信号槽机制，跨平台界面 |
+| **Computer Vision** | OpenCV 4.x | 图像处理，相机驱动 |
+| **Build System** | CMake 3.16+ | 跨平台构建，多目标管理 |
+| **Language** | C++ 17 | 核心逻辑 |
+| **Protocol** | TCP/IP | Port 30003 (UR Realtime) |
 
 ## 📂 项目结构 (Project Structure)
 
-Plaintext
+项目采用 **源码与平台隔离** 的工程结构：
 
-```
+```text
 UR_Control/
-├── CMakeLists.txt       # CMake 构建脚本 (核心配置)
-├── main.cpp             # 程序入口，高分屏适配
-├── mainwindow.h         # 主窗口头文件 (声明)
-├── mainwindow.cpp       # 主窗口实现 (业务逻辑、TCP、OpenCV)
-├── mainwindow.ui        # 界面布局文件
-├── mock_ur.py           # [工具] Python 编写的 UR 机械臂模拟服务器
-└── README.md            # 项目说明文档
+├── src/
+│   ├── platform/            # [跨平台层] 隔离 OS 差异代码
+│   │   ├── win/             # Windows 特定实现 (DirectShow)
+│   │   └── linux/           # Linux 特定实现 (V4L2)
+│   ├── tests/               # [测试层] 算法单元测试入口
+│   ├── RRTPlanner.h/.cpp    # [算法层] RRT 路径规划核心
+│   ├── mainwindow.cpp       # [业务层] UI 与 交互逻辑
+│   └── ...
+├── CMakeLists.txt           # CMake 构建配置 (自动识别 OS)
+├── mock_ur.py               # UR 机械臂仿真服务器 (Python)
+└── README.md
+
 ```
 
-## ⚠️ 常见问题 (Troubleshooting)
+## 🚀 构建与运行 (Build & Run)
 
-- **相机打不开 (Windows)**:
-  - 请检查 Windows 设置 -> 隐私 -> 相机，确保“允许桌面应用访问相机”已开启。
-  - 代码默认使用 `CAP_DSHOW` 后端。
-- **相机打不开 (Linux)**:
-  - 确保当前用户在 video 组：`sudo usermod -aG video $USER`，重启生效。
-- **连接机械臂失败**:
-  - 检查 IP 地址是否在同一网段。
-  - 如果无真机，请运行 `python mock_ur.py` 启动本地模拟服务器，并连接 `127.0.0.1`。
-- **画面卡顿/黑屏**:
-  - 可能是 USB 带宽不足。尝试将相机插在不同的 USB 控制器接口上，或降低分辨率设置。
-- **能够 Ping 通机械臂，但软件提示连接失败**：
-  - 请检查电脑是否开启了 VPN/加速器。Qt 的网络模块默认会读取系统代理设置，导致内网请求被转发到代理服务器。请关闭代理或在代码中强制禁用代理。
+### 1. 编译主程序 (UR_Control)
 
-------
+适用于 Windows (Qt Creator) 或 Linux (命令行)。
+
+```bash
+mkdir build && cd build
+cmake ..
+make -j4       # Windows 下使用 nmake 或 jom
+./UR_Control   # 启动主界面
+
+```
+
+### 2. 运行算法单元测试 (RRT_Test) [New]
+
+本项目包含独立的算法测试模块，用于验证 RRT 规划与碰撞检测逻辑，无需连接机械臂即可运行。
+
+**在 Qt Creator 中：**
+
+1. 点击左侧 **运行配置 (Run Settings)**（电脑图标）。
+2. 在下拉菜单中选择 **`RRT_Test`**。
+3. 点击运行。
+
+**在命令行中：**
+
+```bash
+./RRT_Test
+# 输出示例: ✅ 测试通过: 正确检测到碰撞!
+
+```
+
+## ⚠️ 常见问题与工程经验 (Troubleshooting)
+
+### Q1: 能 Ping 通机械臂，但软件提示连接失败/超时？
+
+> **[Engineering Fix]** 这是一个典型的网络分层问题。
+> * **原因**: 电脑开启了 VPN/加速器。Qt 的 `QTcpSocket` 默认会读取系统代理设置，导致发往内网机械臂 (如 `192.168.x.x`) 的请求被错误转发到了代理服务器。
+> * **解决**: 本项目代码已修复此问题。我们在 `mainwindow.cpp` 中强制设置了 `m_socket->setProxy(QNetworkProxy::NoProxy)` 以确保物理直连。
+> 
+> 
+
+### Q2: 虚拟机 (URSim) 连接失败？
+
+* 检查虚拟机防火墙：`sudo ufw disable`。
+* 检查 Telnet 端口：`telnet <IP> 30003`。如果出现乱码说明连通。
+
+### Q3: 画面卡顿或黑屏？
+
+* 这是 USB 总线带宽不足的表现。代码已针对 Linux 开启 `MJPG` 压缩格式优化。请尝试降低分辨率或更换 USB 3.0 接口。
+
+---
+
+### 📅 开发计划 (Roadmap)
+
+* [x] **Phase 1**: 基础架构重构 (src分离) 与 跨平台相机适配。
+* [x] **Phase 2**: 实现 Jog 点动控制与 TCP 通信优化。
+* [x] **Phase 3**: RRT 算法核心实现与单元测试环境搭建。
+* [ ] **Phase 4**: **(Next)** 将 RRT 轨迹转换为 URScript 并在真机执行。
+* [ ] **Phase 5**: 完成手眼标定，实现基于视觉的动态避障。
+
+---
 
 ### 👨‍💻 作者 (Author)
 
-- **Developer**: FuKun Yang
-- **Date**: 2025-12-18
-
-------
-
-### 💡TO DO LIST
-
-- [ ] 实现 IBVS 视觉伺服算法
-- [ ] 添加相机参数标定功能
-- [ ] 优化多线程图像处理性能
+* **Developer**: FuKun Yang
+* **Update**: 2025-12-30
