@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 初始化Socket
     m_socket = new QTcpSocket(this);
+    // [Engineering Fix] 2025-12-30
+    // 问题：开启系统代理(VPN)时，QTcpSocket 会尝试通过代理服务器连接内网 IP，导致连接超时。
+    // 现象：能 Ping 通 (ICMP 协议不走代理)，但 TCP 连接失败。
+    // 解决：强制设置 NoProxy，确保 Socket 直连物理网卡。
+    m_socket->setProxy(QNetworkProxy::NoProxy);
 
     // TCP通信信号与槽连接
     connect(m_socket, &QTcpSocket::connected, this, &MainWindow::onSocketConnected);
