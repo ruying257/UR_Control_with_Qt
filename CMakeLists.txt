@@ -34,9 +34,11 @@ set(PROJECT_SOURCES
         src/mainwindow.h
         src/mainwindow.ui
         src/platform/CameraHelper.h
+        src/RRTPlanner.h
+        src/RRTPlanner.cpp
 )
 
-# 2. 根据系统加入特定实现文件
+# 2. 根据系统加入特定实现文件(针对不同平台的相机助手)
 if(WIN32)
     list(APPEND PROJECT_SOURCES src/platform/win/CameraHelper.cpp)
     message(STATUS "🖥️  Detected Windows: Added win/CameraHelper.cpp")
@@ -75,6 +77,27 @@ endif()
 
 # --- 链接库文件 ---
 target_link_libraries(UR_Control PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network ${OpenCV_LIBS})
+
+# --- 单元测试配置 ---
+# 1. 定义测试程序的可执行文件
+# 注意：这里只包含测试入口 (test_rrt_main.cpp) 和 算法核心 (RRTPlanner)
+add_executable(RRT_Test
+    src/tests/test_rrt_main.cpp
+    src/RRTPlanner.cpp
+    src/RRTPlanner.h
+)
+
+# 2. 链接必要的库
+# 算法依赖 OpenCV 进行数学计算 (cv::Point3f)
+target_link_libraries(RRT_Test PRIVATE 
+    ${OpenCV_LIBS}
+)
+
+# (可选) 如果你的 RRTPlanner 用到了 Qt 的 qDebug，还需要链接 QtCore
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+target_link_libraries(RRT_Test PRIVATE 
+    Qt${QT_VERSION_MAJOR}::Core
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

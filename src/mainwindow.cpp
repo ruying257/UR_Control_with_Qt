@@ -5,6 +5,7 @@
 #include <QMessageBox>       // 用于展示信息框
 #include <QDateTime>         // 用于生成唯一的文件名
 #include <QDebug>
+#include <QNetworkProxy>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
