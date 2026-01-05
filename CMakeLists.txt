@@ -36,6 +36,8 @@ set(PROJECT_SOURCES
         src/platform/CameraHelper.h
         src/RRTPlanner.h
         src/RRTPlanner.cpp
+        src/tools/CalibrationHelper.h
+        src/tools/CalibrationHelper.cpp
 )
 
 # 2. 根据系统加入特定实现文件(针对不同平台的相机助手)
