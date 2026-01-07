@@ -13,7 +13,7 @@ int main() {
     obs.radius = 0.1; // 半径 10cm
     planner.addObstacle(obs);
 
-    qDebug() << "🧱 障碍物已放置: (0.5, 0, 0), R=0.1";
+    qDebug() << "🧱 障碍物已放置:" << obs.center << ", R=" << obs.radius;
 
     // 2. 设置起点和终点
     cv::Point3f start(0.0, 0.0, 0.0);

@@ -12,7 +12,7 @@ struct SphereObstacle {
     float radius;
 };
 
-// 【新增】树的节点
+// 树的节点
 struct Node {
     cv::Point3f pos; // 当前点的位置
     int parentId;    // 父节点在数组中的索引 (-1表示根节点)

@@ -23,6 +23,7 @@ find_package(OpenCV REQUIRED)
 # message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 # --- Qt配置 ---
+list(APPEND CMAKE_PREFIX_PATH "D:/Tools/Qt/6.9.3/msvc2022_64")
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 

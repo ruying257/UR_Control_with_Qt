@@ -10,8 +10,11 @@ void RRTPlanner::addObstacle(const SphereObstacle& obs) {
     m_obstacles.push_back(obs);
 }
 
-// 碰撞检测 (复用你之前验证过的逻辑)
+// 碰撞检测
 bool RRTPlanner::checkCollision(const cv::Point3f& p1, const cv::Point3f& p2, float threshold) {
+    /*
+    通过将三维空间中的线段与球形障碍物进行几何计算，实现碰撞检测
+    */
     for (const auto& obs : m_obstacles) {
         float safeRadius = obs.radius + threshold;
         cv::Point3f d = p2 - p1;
@@ -20,6 +23,7 @@ bool RRTPlanner::checkCollision(const cv::Point3f& p1, const cv::Point3f& p2, fl
         float b = 2.0f * f.dot(d);
         float c = f.dot(f) - safeRadius * safeRadius;
 
+        // 处理 a 接近 0 的情况（即P1、P2重合），避免除以零
         if (std::abs(a) < 1e-6) {
             if (c < 0) return true;
             continue;
@@ -43,10 +47,10 @@ std::vector<cv::Point3f> RRTPlanner::planPath(const cv::Point3f& start, const cv
     std::vector<Node> tree;
     tree.push_back({start, -1}); // 1. 把起点加入树，它是根节点 (-1)
 
-    // 随机数引擎
+    // 随机数引擎（三件套）
     std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
+    std::mt19937 gen(rd());     // 返回一个 32 位伪随机整数
+    std::uniform_real_distribution<> dis(0.0, 1.0);      // 生成 [0, 1) 之间的随机数
 
     bool reached = false;
     int goalNodeId = -1;
@@ -55,13 +59,16 @@ std::vector<cv::Point3f> RRTPlanner::planPath(const cv::Point3f& start, const cv
     for (int i = 0; i < m_maxIter; ++i) {
         // A. 采样: 有一定概率直接选终点作为方向 (Goal Bias)
         cv::Point3f rndPoint;
-        if (dis(gen) < m_goalBias) {
+        /* 
+        dis(gen) 把引擎 gen 吐出的 raw 随机数，按 dis 设定的概率规律（即 [0, 1)）重新洗牌后输出
+        */
+        if (dis(gen) < m_goalBias) {         // 有一定概率直接选终点作为方向 (Goal Bias)
             rndPoint = goal;
         } else {
             rndPoint = getRandomPoint(goal); // 否则全图随机撒点
         }
 
-        // B. 找最近: 树上哪个点离这个随机点最近?
+        // B. 找最近: 树上哪个点离这个随机点最近
         int nearestId = getNearestNodeId(tree, rndPoint);
         cv::Point3f nearestPoint = tree[nearestId].pos;
 
@@ -118,7 +125,11 @@ cv::Point3f RRTPlanner::getRandomPoint(const cv::Point3f& /*goal*/) {
 }
 
 int RRTPlanner::getNearestNodeId(const std::vector<Node>& tree, const cv::Point3f& point) {
+    // 找到树中距离 point 最近的节点
     int minId = -1;
+    /*
+    用float能表示的最大值 作为初始最小距离，确保后续任何实际距离都能被正确更新
+    */
     float minDist = std::numeric_limits<float>::max();
 
     for (size_t i = 0; i < tree.size(); ++i) {
@@ -132,6 +143,7 @@ int RRTPlanner::getNearestNodeId(const std::vector<Node>& tree, const cv::Point3
 }
 
 cv::Point3f RRTPlanner::step(const cv::Point3f& from, const cv::Point3f& to) {
+
     cv::Point3f direction = to - from;
     float len = std::sqrt(direction.dot(direction));
 
@@ -143,5 +155,6 @@ cv::Point3f RRTPlanner::step(const cv::Point3f& from, const cv::Point3f& to) {
 }
 
 float RRTPlanner::distance(const cv::Point3f& p1, const cv::Point3f& p2) {
+    // 计算两点之间的欧氏距离
     return cv::norm(p1 - p2);
 }

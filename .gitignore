@@ -32,3 +32,11 @@ cmake_install.cmake
 # --- OpenCV生成图片 (看你需求，一般不提交测试图片) ---
 *.jpg
 *.png
+
+# --- IDE & Editor Configuration ---
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
