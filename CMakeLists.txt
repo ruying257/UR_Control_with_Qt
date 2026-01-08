@@ -34,11 +34,9 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         src/mainwindow.h
         src/mainwindow.ui
-        src/platform/CameraHelper.h
-        src/RRTPlanner.h
-        src/RRTPlanner.cpp
-        src/tools/CalibrationHelper.h
-        src/tools/CalibrationHelper.cpp
+
+        src/tools/Detector/YoloDetector.h
+        src/tools/Detector/YoloDetector.cpp
 )
 
 # 2. 根据系统加入特定实现文件(针对不同平台的相机助手)
@@ -86,8 +84,8 @@ target_link_libraries(UR_Control PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_V
 # 注意：这里只包含测试入口 (test_rrt_main.cpp) 和 算法核心 (RRTPlanner)
 add_executable(RRT_Test
     src/tests/test_rrt_main.cpp
-    src/RRTPlanner.cpp
-    src/RRTPlanner.h
+    src/tools/Path_Plan/RRTPlanner.cpp
+    src/tools/Path_Plan/RRTPlanner.h
 )
 
 # 2. 链接必要的库

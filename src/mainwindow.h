@@ -5,6 +5,7 @@
 #include <QAbstractSocket>      // 引入Socket错误枚举
 #include <QTimer>               // 定时器
 #include <opencv2/opencv.hpp>   // OpenCV头文件
+#include "tools/YoloDetector.h"  // 引入螺母检测工具
 
 
 class QTcpSocket;   // 前置声明
